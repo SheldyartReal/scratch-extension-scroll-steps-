@@ -1,51 +1,48 @@
-class ScrollExtension {
-    constructor(runtime) {
-        this.runtime = runtime;
-    }
+(function (Scratch) {
+    'use strict';
 
-    getInfo() {
-        return {
-            id: 'scrollExtension',
-            name: 'Scroll',
-            color1: '#614dff',
-            color2: '#3d24f3',
-            color3: '#3d24f3',
-            blocks: [
-                {
-                    opcode: 'scrollSteps',
-                    blockType: Scratch.BlockType.COMMAND,
-                    text: 'scroll [STEPS] steps',
-                    arguments: {
-                        STEPS: {
-                            type: Scratch.ArgumentType.NUMBER,
-                            defaultValue: 10
-                        }
-                    }
-                }
-            ]
-        };
-    }
-
-    scrollSteps(args, util) {
-        // Get the number of steps to scroll
-        const steps = Cast.toNumber(args.STEPS);
-
-        // Get current sprite target
-        const target = util.target;
-
-        if (!target) return;
-
-        // Move the sprite vertically (up = positive, down = negative)
-        target.setXY(target.x, target.y + steps);
-    }
-}
-
-(function(Scratch) {
+    // Ensure it's running unsandboxed
     if (!Scratch.extensions.unsandboxed) {
         throw new Error('This extension must be run unsandboxed.');
     }
 
-    const Cast = Scratch.Cast;
+    // Get Cast safely (older versions may not have Scratch.Cast)
+    const Cast = Scratch.Cast || {
+        toNumber: n => +n || 0
+    };
 
-    Scratch.extensions.register(new ScrollExtension(Scratch.runtime));
+    class ScrollExtension {
+        getInfo() {
+            return {
+                id: 'scrollExtension',
+                name: 'Scroll',
+                color1: '#00ADEF',
+                blocks: [
+                    {
+                        opcode: 'scrollSteps',
+                        blockType: Scratch.BlockType.COMMAND,
+                        text: 'scroll [STEPS] steps',
+                        arguments: {
+                            STEPS: {
+                                type: Scratch.ArgumentType.NUMBER,
+                                defaultValue: 10
+                            }
+                        }
+                    }
+                ]
+            };
+        }
+
+        scrollSteps(args, util) {
+            const steps = Cast.toNumber(args.STEPS);
+            const target = util.target;
+
+            if (!target) return;
+
+            // Move vertically (up is positive)
+            target.setXY(target.x, target.y + steps);
+        }
+    }
+
+    Scratch.extensions.register(new ScrollExtension());
 })(Scratch);
