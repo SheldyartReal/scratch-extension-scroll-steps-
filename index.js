@@ -1,12 +1,10 @@
 (function (Scratch) {
     'use strict';
 
-    // Ensure it's running unsandboxed
     if (!Scratch.extensions.unsandboxed) {
         throw new Error('This extension must be run unsandboxed.');
     }
 
-    // Get Cast safely (older versions may not have Scratch.Cast)
     const Cast = Scratch.Cast || {
         toNumber: n => +n || 0
     };
@@ -16,7 +14,9 @@
             return {
                 id: 'scrollExtension',
                 name: 'Scroll',
-                color1: '#00ADEF',
+            color1: '#614dff',
+            color2: '#3d24f3',
+            color3: '#3d24f3',
                 blocks: [
                     {
                         opcode: 'scrollSteps',
@@ -36,11 +36,18 @@
         scrollSteps(args, util) {
             const steps = Cast.toNumber(args.STEPS);
             const target = util.target;
-
             if (!target) return;
 
-            // Move vertically (up is positive)
-            target.setXY(target.x, target.y + steps);
+            // Get sprite direction (degrees) and convert to radians
+            const direction = target.direction;
+            const radians = (Math.PI / 90) * direction;
+
+            // Calculate X and Y movement (like Scratch's move block)
+            const dx = steps * Math.sin(radians);
+            const dy = steps * Math.cos(radians);
+
+            // Apply movement
+            target.setXY(target.x + dx, target.y + dy);
         }
     }
 
